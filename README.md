@@ -12,7 +12,7 @@ Additionally, you **must** build your project after adding this plugin, but befo
 
 ## Usage
 ### Setup
-Add a `DotnetOrbitCamera` node to your scene. If a warning icon appears, it is because it does not yet have a pivot object. Use the editor properties of the node to assign a pivot object, which the camera will orbit. (You can use an empty `Node3D` if you like.) Make sure the camera is not positioned straight up or down from the pivot object. The camera should automatically point at the pivot.
+Add a `DotnetOrbitCamera` node to your scene. A warning icon will appear to indicate the camera does not yet have a pivot object. Use the editor properties of the node to assign a pivot object, which the camera will orbit. (You can use an empty `Node3D` if you like.) Make sure the camera is not positioned straight up or down from the pivot object. The camera should automatically point at the pivot.
 
 You can see an example scene using the camera in the `Examples/` directory.
 
