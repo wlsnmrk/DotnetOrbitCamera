@@ -16,6 +16,15 @@ Add a `DotnetOrbitCamera` node to your scene. A warning icon will appear to indi
 
 You can see an example scene using the camera in the `Examples/` directory.
 
+## Parameters
+* **Pivot**: The `Node3D` around which the camera orbits.
+* **Vertical Rotation Limit**: Limit of angle from camera to pivot, above/below the pivot's Y-position, in degrees. Minimum `0.001`, maximum `89`.
+* **Minimum Zoom Distance**: How close the camera can move to the pivot, in meters. Minimum `0.001`.
+* **Maximum Zoom Distance**: How far the camera can move from the pivot, in meters. Minimum **Minimum Zoom Distance**.
+* **Pan Speed**: How quickly the camera pans. Minimum `0.001`.
+* **Rotation Speed**: How quickly the camera orbits or spins. Minimum `0.001`.
+* **Input Enabled**: Whether the camera responds to input.
+
 ## Input
 When running your game, the camera will:
 * Spin around the pivot object when the middle-mouse button is held and the mouse is moved.
