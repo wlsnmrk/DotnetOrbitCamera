@@ -6,7 +6,7 @@ You **must** have a .NET release of Godot. The standard release of the engine do
 
 Additionally, you **must** build your project after adding this plugin, but before enabling the plugin in your project settings. Enabling it without building your project will not work.
 
-1. Download the repository as a zip file and follow the [instructions for moving the files into your Godot project](https://docs.godotengine.org/en/stable/tutorials/plugins/editor/installing_plugins.html), but _do not yet enable the plugin_. Only move the `addons/` folder into your project; don't move any of the top-level files from this repository into your project.
+1. Download the latest release and follow the [instructions for moving the files into your Godot project](https://docs.godotengine.org/en/stable/tutorials/plugins/editor/installing_plugins.html), but _do not yet enable the plugin_.
 1. Build your project.
 1. Enable the plugin in your project settings.
 
