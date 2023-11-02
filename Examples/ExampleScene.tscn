@@ -1,6 +1,7 @@
-[gd_scene load_steps=7 format=3 uid="uid://c8r6k2m5fbdn2"]
+[gd_scene load_steps=8 format=3 uid="uid://c8r6k2m5fbdn2"]
 
 [ext_resource type="Script" path="res://addons/DotnetOrbitCamera/DotnetOrbitCamera.cs" id="1_gwb15"]
+[ext_resource type="Shader" path="res://Examples/ExampleObject.gdshader" id="2_vpuui"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_7yvk0"]
 sky_horizon_color = Color(0.64625, 0.65575, 0.67075, 1)
@@ -15,9 +16,15 @@ sky = SubResource("Sky_xv5o0")
 tonemap_mode = 2
 glow_enabled = true
 
-[sub_resource type="SphereMesh" id="SphereMesh_xdo2p"]
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_cxlvf"]
+render_priority = 0
+shader = ExtResource("2_vpuui")
+shader_parameter/object_width = 20.0
+shader_parameter/object_depth = 20.0
 
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_abyi2"]
+[sub_resource type="PlaneMesh" id="PlaneMesh_42mqj"]
+material = SubResource("ShaderMaterial_cxlvf")
+size = Vector2(20, 20)
 
 [node name="ExampleScene" type="Node3D"]
 
@@ -34,8 +41,7 @@ shadow_enabled = true
 transform = Transform3D(1, 0, 0, 0, 0.707107, 0.707107, 0, -0.707107, 0.707107, 0, 2, 2)
 script = ExtResource("1_gwb15")
 Pivot = NodePath("../CameraPivot")
-XRotationLimit = 80.0
+VerticalRotationLimit = 80.0
 
 [node name="ExampleObject" type="MeshInstance3D" parent="."]
-mesh = SubResource("SphereMesh_xdo2p")
-surface_material_override/0 = SubResource("ShaderMaterial_abyi2")
+mesh = SubResource("PlaneMesh_42mqj")
