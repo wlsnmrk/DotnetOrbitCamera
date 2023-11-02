@@ -1,8 +1,8 @@
 # .NET Orbit Camera
-An editor-style orbit camera for [Godot Engine 4](https://godotengine.org), written in C#. Its properties are easily accessed from other C# scripts in your project.
+An editor-style orbit camera for [Godot Engine 4](https://godotengine.org), written in C#. Useful for interfacing with other C# code in your project.
 
 ## Installation
-You **must** have a .NET release of Godot. The standard release of the engine does not support C# scripts. Other orbit-camera plugins exist for GDScript projects.
+You **must** have a .NET release of Godot. The standard release of the engine does not support C# scripts.
 
 Additionally, you **must** build your project after adding this plugin, but before enabling the plugin in your project settings. Enabling it without building your project will not work.
 
@@ -16,9 +16,9 @@ Add a `DotnetOrbitCamera` node to your scene. If a warning icon appears, it is b
 
 You can see an example scene using the camera in the `Examples/` directory.
 
-## In Game
+## Input
 When running your game, the camera will:
-* Spin around the pivot object when the middle-mouse button is held and the mouse moved.
+* Spin around the pivot object when the middle-mouse button is held and the mouse is moved.
 * Pan (moving both camera and pivot object) when the `Shift` key is held along with the middle-mouse button and the mouse is moved.
     * Panning motion is constrained to the X-Z plane; the camera will not elevate during panning.
 * Zoom in and out when the mouse wheel is turned (up and down, respectively).
