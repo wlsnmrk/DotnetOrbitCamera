@@ -81,6 +81,36 @@ namespace DotnetOrbitCamera
             }
         }
 
+        private float _panSpeed = 1f;
+        [Export]
+        public float PanSpeed
+        {
+            get { return _panSpeed; }
+            set
+            {
+                if (value < 0.001f)
+                {
+                    value = 0.001f;
+                }
+                _panSpeed = value;
+            }
+        }
+
+        private float _rotationSpeed = 1f;
+        [Export]
+        public float RotationSpeed
+        {
+            get { return _rotationSpeed; }
+            set
+            {
+                if (value < 0.001f)
+                {
+                    value = 0.001f;
+                }
+                _rotationSpeed = value;
+            }
+        }
+
         [Export]
         public bool InputEnabled { get; set; } = true;
 
@@ -189,7 +219,7 @@ namespace DotnetOrbitCamera
                 var cameraQuat = Basis.GetRotationQuaternion();
                 var cameraX = cameraQuat * Vector3.Right;
                 var relPos = GetPositionRelativeToPivot();
-                var newRelativeCameraPos = relPos.Rotated(cameraX, Mathf.DegToRad(-mouseMotion.Y));
+                var newRelativeCameraPos = relPos.Rotated(cameraX, Mathf.DegToRad(-mouseMotion.Y * RotationSpeed));
                 var newRelativeCameraPosNorm = newRelativeCameraPos.Normalized();
                 var cameraZ = new Vector3(relPos.X, 0, relPos.Z).Normalized();
                 var angleX = Mathf.Atan2(cameraZ.Cross(newRelativeCameraPosNorm).Dot(cameraX), cameraZ.Dot(newRelativeCameraPosNorm));
@@ -203,7 +233,7 @@ namespace DotnetOrbitCamera
                 }
 
                 // Rotate about global Y
-                newRelativeCameraPos = newRelativeCameraPos.Rotated(Vector3.Up, Mathf.DegToRad(-mouseMotion.X));
+                newRelativeCameraPos = newRelativeCameraPos.Rotated(Vector3.Up, Mathf.DegToRad(-mouseMotion.X * RotationSpeed));
 
                 GlobalPosition = Pivot.GlobalPosition + newRelativeCameraPos;
 
@@ -219,8 +249,8 @@ namespace DotnetOrbitCamera
                 var cameraDist = relPos.Length();
                 var cameraX = Basis.GetRotationQuaternion() * Vector3.Right;
                 var cameraZ = new Vector3(relPos.X, 0, relPos.Z).Normalized();
-                var xMotion = cameraX * -mouseMotion.X * .01f * cameraDist;
-                var zMotion = cameraZ * -mouseMotion.Y * .01f * cameraDist;
+                var xMotion = cameraX * -mouseMotion.X * .01f * cameraDist * PanSpeed;
+                var zMotion = cameraZ * -mouseMotion.Y * .01f * cameraDist * PanSpeed;
                 GlobalPosition += xMotion;
                 GlobalPosition += zMotion;
                 Pivot.GlobalPosition += xMotion;
