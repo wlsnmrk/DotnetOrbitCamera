@@ -154,7 +154,7 @@ namespace DotnetOrbitCamera
                         GetViewport().SetInputAsHandled();
                     }
                 }
-                if (@event is InputEventMouseButton mouseButtonEvent && mouseButtonEvent.IsPressed())
+                else if (@event is InputEventMouseButton mouseButtonEvent && mouseButtonEvent.IsPressed())
                 {
                     if (mouseButtonEvent.ButtonIndex == MouseButton.WheelUp)
                     {
