@@ -11,6 +11,8 @@ namespace DotnetOrbitCamera
     {
         // Have to slow the mouse way down
         private const float _mousePanSpeedFactor = 0.01f;
+        private const float _zoomFactorIn = 0.8f;
+        private const float _zoomFactorOut = 1.2f;
         // Minima for various exported properties
         private const float _minZoomMinimum = 0.001f;
         private const float _panSpeedMinimum = 0.001f;
@@ -69,7 +71,8 @@ namespace DotnetOrbitCamera
                 {
                     MaximumZoomDistance = _minZoomDistance;
                 }
-                LimitCameraZoom();
+                // Enforce zoom bounds but otherwise leave camera where it is
+                ZoomCamera(1.0f);
             }
         }
 
@@ -85,7 +88,8 @@ namespace DotnetOrbitCamera
                     value = MinimumZoomDistance;
                 }
                 _maxZoomDistance = value;
-                LimitCameraZoom();
+                // Enforce zoom bounds but otherwise leave camera where it is
+                ZoomCamera(1.0f);
             }
         }
 
@@ -165,11 +169,11 @@ namespace DotnetOrbitCamera
                 {
                     if (mouseButtonEvent.ButtonIndex == MouseButton.WheelUp)
                     {
-                        ZoomCamera(true);
+                        ZoomCamera(_zoomFactorIn);
                     }
                     if (mouseButtonEvent.ButtonIndex == MouseButton.WheelDown)
                     {
-                        ZoomCamera(false);
+                        ZoomCamera(_zoomFactorOut);
                     }
                     GetViewport().SetInputAsHandled();
                 }
@@ -280,22 +284,12 @@ namespace DotnetOrbitCamera
             }
         }
 
-        public void ZoomCamera(bool isDirectionIn)
+        public void ZoomCamera(float zoomFactor)
         {
             if (Pivot != null && IsInsideTree() && Pivot.IsInsideTree())
             {
                 var relPos = GetPositionRelativeToPivot();
-                var newCameraPos = relPos * (isDirectionIn ? 0.8f : 1.2f);
-                Position = Pivot.Position + newCameraPos;
-                LimitCameraZoom();
-            }
-        }
-
-        public void LimitCameraZoom()
-        {
-            if (Pivot != null && IsInsideTree() && Pivot.IsInsideTree())
-            {
-                var relPos = GetPositionRelativeToPivot();
+                relPos *= zoomFactor;
                 var distSq = relPos.LengthSquared();
                 if (distSq > MaximumZoomDistance * MaximumZoomDistance)
                 {
