@@ -41,7 +41,8 @@ namespace DotnetOrbitCamera
                     value += 360;
                 }
                 _xRotationLimitRads = Mathf.DegToRad(value);
-                RotateCamera(Vector2.Zero);
+                // Apply rotation limits
+                RotateCamera(0, 0);
             }
         }
 
@@ -146,7 +147,8 @@ namespace DotnetOrbitCamera
                         }
                         else
                         {
-                            RotateCamera(mouseMotionEvent.Relative);
+                            var rotationAngles = RotationAnglesFromMouseMotion(mouseMotionEvent.Relative);
+                            RotateCamera(rotationAngles.X, rotationAngles.Y);
                         }
                         GetViewport().SetInputAsHandled();
                     }
@@ -211,7 +213,12 @@ namespace DotnetOrbitCamera
             }
         }
 
-        public void RotateCamera(Vector2 mouseMotion)
+        public Vector2 RotationAnglesFromMouseMotion(Vector2 mouseMotion)
+        {
+            return new Vector2(Mathf.DegToRad(-mouseMotion.Y * RotationSpeed), Mathf.DegToRad(-mouseMotion.X * RotationSpeed));
+        }
+
+        public void RotateCamera(float xAngleRads, float yAngleRads)
         {
             if (Pivot != null && IsInsideTree() && Pivot.IsInsideTree())
             {
@@ -219,7 +226,7 @@ namespace DotnetOrbitCamera
                 var cameraQuat = Basis.GetRotationQuaternion();
                 var cameraX = cameraQuat * Vector3.Right;
                 var relPos = GetPositionRelativeToPivot();
-                var newRelativeCameraPos = relPos.Rotated(cameraX, Mathf.DegToRad(-mouseMotion.Y * RotationSpeed));
+                var newRelativeCameraPos = relPos.Rotated(cameraX, xAngleRads);
                 var newRelativeCameraPosNorm = newRelativeCameraPos.Normalized();
                 var cameraZ = new Vector3(relPos.X, 0, relPos.Z).Normalized();
                 var angleX = Mathf.Atan2(cameraZ.Cross(newRelativeCameraPosNorm).Dot(cameraX), cameraZ.Dot(newRelativeCameraPosNorm));
@@ -233,7 +240,7 @@ namespace DotnetOrbitCamera
                 }
 
                 // Rotate about global Y
-                newRelativeCameraPos = newRelativeCameraPos.Rotated(Vector3.Up, Mathf.DegToRad(-mouseMotion.X * RotationSpeed));
+                newRelativeCameraPos = newRelativeCameraPos.Rotated(Vector3.Up, yAngleRads);
 
                 GlobalPosition = Pivot.GlobalPosition + newRelativeCameraPos;
 
