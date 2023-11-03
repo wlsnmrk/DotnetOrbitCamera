@@ -143,7 +143,8 @@ namespace DotnetOrbitCamera
                     {
                         if (Input.IsKeyPressed(Key.Shift))
                         {
-                            PanCamera(mouseMotionEvent.Relative);
+                            var panVector = PanVectorFromMouseMotion(mouseMotionEvent.Relative);
+                            PanCamera(panVector);
                         }
                         else
                         {
@@ -248,20 +249,26 @@ namespace DotnetOrbitCamera
             }
         }
 
-        public void PanCamera(Vector2 mouseMotion)
+        Vector3 PanVectorFromMouseMotion(Vector2 mouseMotion)
         {
+            Vector3 panVector = Vector3.Zero;
             if (Pivot != null && IsInsideTree() && Pivot.IsInsideTree())
             {
                 var relPos = GetPositionRelativeToPivot();
                 var cameraDist = relPos.Length();
                 var cameraX = Basis.GetRotationQuaternion() * Vector3.Right;
                 var cameraZ = new Vector3(relPos.X, 0, relPos.Z).Normalized();
-                var xMotion = cameraX * -mouseMotion.X * .01f * cameraDist * PanSpeed;
-                var zMotion = cameraZ * -mouseMotion.Y * .01f * cameraDist * PanSpeed;
-                GlobalPosition += xMotion;
-                GlobalPosition += zMotion;
-                Pivot.GlobalPosition += xMotion;
-                Pivot.GlobalPosition += zMotion;
+                panVector = ((cameraX * -mouseMotion.X) + (cameraZ * -mouseMotion.Y)) * (0.01f * cameraDist * PanSpeed);
+            }
+            return panVector;
+        }
+
+        public void PanCamera(Vector3 v)
+        {
+            if (Pivot != null && IsInsideTree() && Pivot.IsInsideTree())
+            {
+                GlobalPosition += v;
+                Pivot.GlobalPosition += v;
                 LookAtPivot();
             }
         }
