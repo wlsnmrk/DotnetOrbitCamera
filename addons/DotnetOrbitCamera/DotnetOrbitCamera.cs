@@ -11,6 +11,10 @@ namespace DotnetOrbitCamera
     {
         // Have to slow the mouse way down
         private const float _mousePanSpeedFactor = 0.01f;
+        // Minima for various exported properties
+        private const float _minZoomMinimum = 0.001f;
+        private const float _panSpeedMinimum = 0.001f;
+        private const float _rotationSpeedMinimum = 0.001f;
 
         private Vector3 _lastPosition;
         private Vector3 _lastPivotPosition;
@@ -56,9 +60,9 @@ namespace DotnetOrbitCamera
             get { return _minZoomDistance; }
             set
             {
-                if (value < 0.001f)
+                if (value < _minZoomMinimum)
                 {
-                    value = 0.001f;
+                    value = _minZoomMinimum;
                 }
                 _minZoomDistance = value;
                 if (MaximumZoomDistance < _minZoomDistance)
@@ -92,9 +96,9 @@ namespace DotnetOrbitCamera
             get { return _panSpeed; }
             set
             {
-                if (value < 0.001f)
+                if (value < _panSpeedMinimum)
                 {
-                    value = 0.001f;
+                    value = _panSpeedMinimum;
                 }
                 _panSpeed = value;
             }
@@ -107,9 +111,9 @@ namespace DotnetOrbitCamera
             get { return _rotationSpeed; }
             set
             {
-                if (value < 0.001f)
+                if (value < _rotationSpeedMinimum)
                 {
-                    value = 0.001f;
+                    value = _rotationSpeedMinimum;
                 }
                 _rotationSpeed = value;
             }
