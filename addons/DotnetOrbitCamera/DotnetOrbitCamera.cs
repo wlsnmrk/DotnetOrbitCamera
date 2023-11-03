@@ -9,6 +9,9 @@ namespace DotnetOrbitCamera
     [Tool]
     public partial class DotnetOrbitCamera : Camera3D
     {
+        // Have to slow the mouse way down
+        private const float _mousePanSpeedFactor = 0.01f;
+
         private Vector3 _lastPosition;
         private Vector3 _lastPivotPosition;
 
@@ -258,7 +261,7 @@ namespace DotnetOrbitCamera
                 var cameraDist = relPos.Length();
                 var cameraX = Basis.GetRotationQuaternion() * Vector3.Right;
                 var cameraZ = new Vector3(relPos.X, 0, relPos.Z).Normalized();
-                panVector = ((cameraX * -mouseMotion.X) + (cameraZ * -mouseMotion.Y)) * (0.01f * cameraDist * PanSpeed);
+                panVector = ((cameraX * -mouseMotion.X) + (cameraZ * -mouseMotion.Y)) * (_mousePanSpeedFactor * cameraDist * PanSpeed);
             }
             return panVector;
         }
