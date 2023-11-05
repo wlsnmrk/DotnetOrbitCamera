@@ -11,9 +11,12 @@ namespace DotnetOrbitCamera
     {
         // Have to slow the mouse way down
         private const float _mousePanSpeedFactor = 0.01f;
+        private const float _maxElevationRotationPerFrameDegrees = 180;
         private const float _zoomFactorIn = 0.8f;
         private const float _zoomFactorOut = 1.2f;
-        // Minima for various exported properties
+        // Limits for exported properties
+        private const float _minElevationAngleMinimumDegrees = -89;
+        private const float _maxElevationAngleMaximumDegrees = 89;
         private const float _minZoomMinimum = 0.001f;
         private const float _panSpeedMinimum = 0.001f;
         private const float _rotationSpeedMinimum = 0.001f;
@@ -34,22 +37,53 @@ namespace DotnetOrbitCamera
             }
         }
 
-        private float _xRotationLimitRads = Mathf.DegToRad(80f);
-        [Export(PropertyHint.Range, "0,89")]
-        public float VerticalRotationLimit 
+        private float _minElevationAngleRads = Mathf.DegToRad(-89f);
+        [Export]
+        public float MinimumElevationAngle
         { 
-            get { return Mathf.RadToDeg(_xRotationLimitRads); }
+            get { return Mathf.RadToDeg(_minElevationAngleRads); }
             set
             {
-                while (value > 360)
+                value = Mathf.Wrap(value, -180, 180);
+                if (value < _minElevationAngleMinimumDegrees)
                 {
-                    value -= 360;
+                    value = _minElevationAngleMinimumDegrees;
                 }
-                while (value < 0)
+                if (value > MaximumElevationAngle)
                 {
-                    value += 360;
+                    value = MaximumElevationAngle;
                 }
-                _xRotationLimitRads = Mathf.DegToRad(value);
+                _minElevationAngleRads = Mathf.DegToRad(value);
+                if (MaximumElevationAngle < value)
+                {
+                    MaximumElevationAngle = value;
+                }
+                // Apply rotation limits
+                RotateCamera(0, 0);
+            }
+        }
+
+        private float _maxElevationAngleRads = Mathf.DegToRad(89f);
+        [Export]
+        public float MaximumElevationAngle
+        {
+            get { return Mathf.RadToDeg(_maxElevationAngleRads); }
+            set
+            {
+                value = Mathf.Wrap(value, -180, 180);
+                if (value > _maxElevationAngleMaximumDegrees)
+                {
+                    value = _maxElevationAngleMaximumDegrees;
+                }
+                if (value < MinimumElevationAngle)
+                {
+                    value = MinimumElevationAngle;
+                }
+                _maxElevationAngleRads = Mathf.DegToRad(value);
+                if (MinimumElevationAngle > value)
+                {
+                    MinimumElevationAngle = value;
+                }
                 // Apply rotation limits
                 RotateCamera(0, 0);
             }
@@ -227,31 +261,47 @@ namespace DotnetOrbitCamera
 
         public Vector2 RotationAnglesFromMouseMotion(Vector2 mouseMotion)
         {
-            return new Vector2(Mathf.DegToRad(-mouseMotion.Y * RotationSpeed), Mathf.DegToRad(-mouseMotion.X * RotationSpeed));
+            var xDegrees = -mouseMotion.Y * RotationSpeed;
+            // Don't let input flip the camera so far over the vertical axis it counts as a valid rotation
+            xDegrees = Mathf.Clamp(xDegrees, -_maxElevationRotationPerFrameDegrees, _maxElevationRotationPerFrameDegrees);
+            var yDegrees = -mouseMotion.X * RotationSpeed;
+            return new Vector2(Mathf.DegToRad(xDegrees), Mathf.DegToRad(yDegrees));
         }
 
         public void RotateCamera(float xAngleRads, float yAngleRads)
         {
             if (Pivot != null && IsInsideTree() && Pivot.IsInsideTree())
             {
+                xAngleRads = Mathf.Wrap(xAngleRads, -Mathf.Pi, Mathf.Pi);
                 // Rotate about local X
                 var cameraQuat = Basis.GetRotationQuaternion();
                 var cameraX = cameraQuat * Vector3.Right;
                 var relPos = GetPositionRelativeToPivot();
                 var newRelativeCameraPos = relPos.Rotated(cameraX, xAngleRads);
-                var newRelativeCameraPosNorm = newRelativeCameraPos.Normalized();
                 var cameraZ = new Vector3(relPos.X, 0, relPos.Z).Normalized();
-                var angleX = Mathf.Atan2(cameraZ.Cross(newRelativeCameraPosNorm).Dot(cameraX), cameraZ.Dot(newRelativeCameraPosNorm));
-                if (angleX > _xRotationLimitRads)
+                var horizProjection = newRelativeCameraPos.Dot(cameraZ);
+                // If we've crossed the vertical axis, discard the rotation; else clamp the rotation
+                if (horizProjection <= 0)
                 {
-                    newRelativeCameraPos = cameraZ.Rotated(cameraX, _xRotationLimitRads) * newRelativeCameraPos.Length();
+                    newRelativeCameraPos = relPos;
                 }
-                if (angleX < -_xRotationLimitRads)
+                else
                 {
-                    newRelativeCameraPos = cameraZ.Rotated(cameraX, -_xRotationLimitRads) * newRelativeCameraPos.Length();
+                    var vertProjection = newRelativeCameraPos.Dot(Vector3.Up);
+                    var angleX = Mathf.Atan2(vertProjection, horizProjection);
+                    if (angleX > _maxElevationAngleRads)
+                    {
+                        // Rotate about negative-X axis because x axis is from camera, but cameraZ is *to* camera
+                        newRelativeCameraPos = cameraZ.Rotated(-cameraX, _maxElevationAngleRads) * newRelativeCameraPos.Length();
+                    }
+                    if (angleX < _minElevationAngleRads)
+                    {
+                        newRelativeCameraPos = cameraZ.Rotated(-cameraX, _minElevationAngleRads) * newRelativeCameraPos.Length();
+                    }
                 }
 
                 // Rotate about global Y
+                yAngleRads = Mathf.Wrap(yAngleRads, -Mathf.Pi, Mathf.Pi);
                 newRelativeCameraPos = newRelativeCameraPos.Rotated(Vector3.Up, yAngleRads);
 
                 GlobalPosition = Pivot.GlobalPosition + newRelativeCameraPos;

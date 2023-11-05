@@ -41,7 +41,8 @@ shadow_enabled = true
 transform = Transform3D(1, 0, 0, 0, 0.707107, 0.707107, 0, -0.707107, 0.707107, 0, 2, 2)
 script = ExtResource("1_gwb15")
 Pivot = NodePath("../CameraPivot")
-VerticalRotationLimit = 80.0
+MinimumElevationAngle = -89.0
+MaximumElevationAngle = 89.0
 
 [node name="ExampleObject" type="MeshInstance3D" parent="."]
 mesh = SubResource("PlaneMesh_42mqj")
