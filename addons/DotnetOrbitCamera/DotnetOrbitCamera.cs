@@ -37,6 +37,9 @@ namespace DotnetOrbitCamera
             }
         }
 
+        [Export]
+        public bool MoveWithPivot { get; set; } = true;
+
         private float _minElevationAngleRads = Mathf.DegToRad(-89f);
         [Export]
         public float MinimumElevationAngle
@@ -172,11 +175,26 @@ namespace DotnetOrbitCamera
             {
                 throw new InvalidOperationException("No pivot node for orbit camera (did you forget to set one?)");
             }
-            if (Pivot != null && (Pivot.GlobalPosition !=  _lastPivotPosition || GlobalPosition != _lastPosition))
+            if (Pivot != null)
             {
-                RotateCamera(0, 0);
-                ZoomCamera(1.0f);
-                LookAtPivot();
+                var needsUpdate = false;
+                if (MoveWithPivot && Pivot.GlobalPosition != _lastPivotPosition)
+                {
+                    var oldRelPos = GetLastPivotRelativePosition();
+                    GlobalPosition = Pivot.GlobalPosition + oldRelPos;
+                    needsUpdate = true;
+                }
+                else if (Pivot.GlobalPosition != _lastPivotPosition || GlobalPosition != _lastPosition)
+                {
+                    needsUpdate = true;
+                }
+
+                if (needsUpdate)
+                {
+                    RotateCamera(0, 0);
+                    ZoomCamera(1.0f);
+                    LookAtPivot();
+                }
             }
         }
 
@@ -226,7 +244,7 @@ namespace DotnetOrbitCamera
             return warnings.ToArray();
         }
 
-        public Vector3 GetPositionRelativeToPivot()
+        public Vector3 GetPivotRelativePosition()
         {
             if (Pivot == null)
             {
@@ -237,6 +255,11 @@ namespace DotnetOrbitCamera
                 return Vector3.Zero;
             }
             return GlobalPosition - Pivot.GlobalPosition;
+        }
+
+        public Vector3 GetLastPivotRelativePosition()
+        {
+            return _lastPosition - _lastPivotPosition;
         }
 
         public void LookAtPivot()
@@ -278,7 +301,7 @@ namespace DotnetOrbitCamera
                 // Rotate about local X
                 var cameraQuat = Basis.GetRotationQuaternion();
                 var cameraX = cameraQuat * Vector3.Right;
-                var relPos = GetPositionRelativeToPivot();
+                var relPos = GetPivotRelativePosition();
                 var newRelativeCameraPos = Mathf.Abs(xAngleRads) > 1e-3 ? relPos.Rotated(cameraX, xAngleRads) : relPos;
                 var cameraZ = new Vector3(relPos.X, 0, relPos.Z).Normalized();
                 var horizProjection = newRelativeCameraPos.Dot(cameraZ);
@@ -320,7 +343,7 @@ namespace DotnetOrbitCamera
             Vector3 panVector = Vector3.Zero;
             if (Pivot != null && IsInsideTree() && Pivot.IsInsideTree())
             {
-                var relPos = GetPositionRelativeToPivot();
+                var relPos = GetPivotRelativePosition();
                 var cameraDist = relPos.Length();
                 var cameraX = Basis.GetRotationQuaternion() * Vector3.Right;
                 var cameraZ = new Vector3(relPos.X, 0, relPos.Z).Normalized();
@@ -343,7 +366,7 @@ namespace DotnetOrbitCamera
         {
             if (Pivot != null && IsInsideTree() && Pivot.IsInsideTree())
             {
-                var relPos = GetPositionRelativeToPivot();
+                var relPos = GetPivotRelativePosition();
                 if (Mathf.Abs(zoomFactor - 1.0) > 1e-3)
                 {
                     relPos *= zoomFactor;
