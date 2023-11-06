@@ -174,6 +174,8 @@ namespace DotnetOrbitCamera
             }
             if (Pivot != null && (Pivot.GlobalPosition !=  _lastPivotPosition || GlobalPosition != _lastPosition))
             {
+                RotateCamera(0, 0);
+                ZoomCamera(1.0f);
                 LookAtPivot();
             }
         }
@@ -277,7 +279,7 @@ namespace DotnetOrbitCamera
                 var cameraQuat = Basis.GetRotationQuaternion();
                 var cameraX = cameraQuat * Vector3.Right;
                 var relPos = GetPositionRelativeToPivot();
-                var newRelativeCameraPos = relPos.Rotated(cameraX, xAngleRads);
+                var newRelativeCameraPos = Mathf.Abs(xAngleRads) > 1e-3 ? relPos.Rotated(cameraX, xAngleRads) : relPos;
                 var cameraZ = new Vector3(relPos.X, 0, relPos.Z).Normalized();
                 var horizProjection = newRelativeCameraPos.Dot(cameraZ);
                 // If we've crossed the vertical axis, discard the rotation; else clamp the rotation
@@ -302,7 +304,10 @@ namespace DotnetOrbitCamera
 
                 // Rotate about global Y
                 yAngleRads = Mathf.Wrap(yAngleRads, -Mathf.Pi, Mathf.Pi);
-                newRelativeCameraPos = newRelativeCameraPos.Rotated(Vector3.Up, yAngleRads);
+                if (Mathf.Abs(yAngleRads) > 1e-3)
+                {
+                    newRelativeCameraPos = newRelativeCameraPos.Rotated(Vector3.Up, yAngleRads);
+                }
 
                 GlobalPosition = Pivot.GlobalPosition + newRelativeCameraPos;
 
@@ -339,7 +344,10 @@ namespace DotnetOrbitCamera
             if (Pivot != null && IsInsideTree() && Pivot.IsInsideTree())
             {
                 var relPos = GetPositionRelativeToPivot();
-                relPos *= zoomFactor;
+                if (Mathf.Abs(zoomFactor - 1.0) > 1e-3)
+                {
+                    relPos *= zoomFactor;
+                }
                 var distSq = relPos.LengthSquared();
                 if (distSq > MaximumZoomDistance * MaximumZoomDistance)
                 {
