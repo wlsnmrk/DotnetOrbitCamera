@@ -6,7 +6,7 @@ You **must** have a .NET release of Godot. The standard release of the engine do
 
 Additionally, you **must** build your project after adding this plugin, but before enabling the plugin in your project settings. Enabling it without building your project will not work.
 
-1. Download the latest release and follow the [instructions for moving the files into your Godot project](https://docs.godotengine.org/en/stable/tutorials/plugins/editor/installing_plugins.html), but _do not yet enable the plugin_.
+1. Download [the latest release](https://github.com/wlsnmrk/godot-dotnet-orbit-camera/releases/latest) and follow the [instructions for moving the files into your Godot project](https://docs.godotengine.org/en/stable/tutorials/plugins/editor/installing_plugins.html), but _do not yet enable the plugin_.
 1. Build your project.
 1. Enable the plugin in your project settings.
 
@@ -16,10 +16,12 @@ Add a `DotnetOrbitCamera` node to your scene. A warning icon will appear to indi
 
 You can see an example scene using the camera in the `Examples/` directory.
 
-## Parameters
+## Editor Properties
 * **Pivot**: The `Node3D` around which the camera orbits.
-* **Vertical Rotation Limit**: Limit of angle from camera to pivot, above/below the pivot's Y-position, in degrees. Minimum `0`, maximum `89`.
-* **Minimum Zoom Distance**: How close the camera can move to the pivot, in meters. Minimum `0.001`.
+* **Move With Pivot**: If the pivot moves, move the camera exactly with it (keeping the same relative position). If false, the camera will attempt to stay within the limits defined by other properties, but will otherwise not move.
+* **Minimum Elevation Angle**: Lower limit of angle from pivot to camera, above or below the pivot's Y-position, in degrees. Minimum value `-89`, maximum value **Maximum Elevation Angle**.
+* **Maximum Elevation Angle**: Upper limit of angle from pivot to camera, above or below the pivot's Y-position, in degrees. Maximum value `89`, minimum value **Minimum Elevation Angle**.
+* **Minimum Zoom Distance**: How close the camera can move to the pivot, in meters. Minimum `0.001`, maximum **Maximum Zoom Distance**.
 * **Maximum Zoom Distance**: How far the camera can move from the pivot, in meters. Minimum **Minimum Zoom Distance**.
 * **Pan Speed**: How quickly the camera pans. Minimum `0.001`.
 * **Rotation Speed**: How quickly the camera orbits or spins. Minimum `0.001`.
